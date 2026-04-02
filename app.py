@@ -7,7 +7,7 @@ import os
 load_dotenv()
 
 from models import db, bcrypt
-from auth import auth_pb
+from auth_user import auth_pb
 from livros import livros_pb
 
 app = Flask(__name__)

@@ -2,7 +2,7 @@ from flask import jsonify, request, Blueprint
 from flask_jwt_extended import create_access_token
 from models import Usuario, db
 
-auth_pb = Blueprint('auth', __name__)
+auth_pb = Blueprint('auth_user', __name__)
 
 @auth_pb.post('/registro')
 def registro():
