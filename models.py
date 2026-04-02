@@ -1,5 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+
 db = SQLAlchemy()
+bcrypt = Bcrypt()  
+
 
 class Livro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
