@@ -12,6 +12,10 @@ from livros import livros_pb
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+mysql_url = os.getenv('DATABASE_URL')
+if mysql_url:
+    mysql_url = mysql_url.replace('mysql://', 'mysql+pymysql://')
+app.config['SQLALCHEMY_DATABASE_URI'] = mysql_url
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
 db.init_app(app)
