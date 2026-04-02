@@ -13,7 +13,7 @@ from livros import livros_pb
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///livros.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('MYSQL_URL')
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
 
