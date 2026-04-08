@@ -9,3 +9,4 @@ python-dotenv==1.2.2
 SQLAlchemy==2.0.48
 gunicorn==25.3.0
 cryptography== 46.0.6
+flask-cors==6.0.2

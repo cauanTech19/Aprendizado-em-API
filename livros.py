@@ -33,7 +33,7 @@ def listar_livros():
     livros = Livro.query.all()
     if not livros:
         return jsonify({'Mensagem': 'Não há livros para exibir'}), 404
-    return jsonify([l.to_dict() for l in livros]), 200
+    return jsonify([l.to_dict() for l in livros]), 202
 
 
 @livros_pb.get('/buscar/<int:id>')
