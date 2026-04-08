@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
+from flask_cors import CORS
 import os
 
 load_dotenv()
@@ -11,6 +12,8 @@ from auth_user import auth_pb
 from livros import livros_pb
 
 app = Flask(__name__)
+CORS(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 mysql_url = os.getenv('DATABASE_URL')
 if mysql_url:
