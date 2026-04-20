@@ -1,49 +1,38 @@
+import os
 from flask import Flask, jsonify
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from dotenv import load_dotenv
-
-import os
-
-load_dotenv()
-
+from flask_cors import CORS
 from models import db, bcrypt
 from auth_user import auth_pb
 from livros import livros_pb
 
-app = Flask(__name__)
 
-CORS(app)
+load_dotenv()
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-mysql_url = os.getenv('DATABASE_URL')
-if mysql_url:
-    mysql_url = mysql_url.replace('mysql://', 'mysql+pymysql://')
-app.config['SQLALCHEMY_DATABASE_URI'] = mysql_url
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+def create_app(test_config=False):
+    app = Flask(__name__)
+    CORS(app)
 
-db.init_app(app)
-bcrypt.init_app(app)
-JWTManager(app)
+    if test_config:
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    else:
+        mysql_url = os.getenv('DATABASE_URL')
+        if mysql_url:
+            mysql_url = mysql_url.replace('mysql://', 'mysql+pymysql://')
 
-app.register_blueprint(auth_pb)
-app.register_blueprint(livros_pb)
+        app.config['SQLALCHEMY_DATABASE_URI'] = mysql_url
 
-@app.errorhandler(500)
-def erro_interno(e):
-    return jsonify({'Mensagem': 'Erro interno no servidor'}), 500
+    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
-@app.errorhandler(404)
-def rota_nao_encontrada(e):
-    return jsonify({'Mensagem': 'Rota não encontrada'}), 404
+    db.init_app(app)
+    bcrypt.init_app(app)
+    JWTManager(app)
 
-@app.errorhandler(405)
-def metodo_nao_permitido(e):
-    return jsonify({'Mensagem': 'Método não permitido'}), 405
+    app.register_blueprint(auth_pb)
+    app.register_blueprint(livros_pb)
+    return app
 
-with app.app_context():
-    db.create_all()
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)), debug=False) 
