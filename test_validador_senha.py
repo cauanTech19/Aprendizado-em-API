@@ -10,7 +10,7 @@ class TestValidadorSenha(unittest.TestCase):
     e na função senha_sequencial.
     """
 
-    def test_senha_menor_que_8_caracteres(self):
+    def test_senha_menor_que_8_caracteres(self) -> None:
         """
         Testa se a validação retorna erro quando a senha possui
         menos de 8 caracteres.
@@ -20,7 +20,7 @@ class TestValidadorSenha(unittest.TestCase):
             'Senha fraca: mínimo 8 caracteres.'
         )
 
-    def test_senha_sem_letras_minusculas_maiusculas_numeros(self):
+    def test_senha_sem_letras_minusculas_maiusculas_numeros(self) -> None:
         """
         Testa senhas que não atendem ao requisito de conter:
         - letras minúsculas
@@ -38,7 +38,7 @@ class TestValidadorSenha(unittest.TestCase):
         for senha, esperado in senhas_invalidads:
             self.assertEqual(ValidarSenha.validar_senha(senha), esperado)
 
-    def test_senha_sem_caracteres(self):
+    def test_senha_sem_caracteres(self) -> None:
         """
         Testa senhas que não possuem caracteres especiais.
         """
@@ -52,7 +52,7 @@ class TestValidadorSenha(unittest.TestCase):
         for senha, esperado in senhas_nao_sequencias:
             self.assertEqual(ValidarSenha.validar_senha(senha), esperado)
 
-    def test_senha_sequencial(self):
+    def test_senha_sequencial(self) -> None:
         """
         Testa se a função senha_sequencial identifica corretamente
         sequências simples dentro da senha.
@@ -67,7 +67,7 @@ class TestValidadorSenha(unittest.TestCase):
         for senha in senhas_sequencias:
             self.assertTrue(senha_sequencial(senha))
 
-    def test_senha_nao_sequencial(self):
+    def test_senha_nao_sequencial(self) -> None:
         """
         Testa senhas que NÃO possuem sequências simples,
         garantindo que a função retorne False.
@@ -81,14 +81,14 @@ class TestValidadorSenha(unittest.TestCase):
         for senha in senhas_nao_sequencias:
             self.assertFalse(senha_sequencial(senha))
 
-    def test_sequencia_case_insensitive(self):
+    def test_sequencia_case_insensitive(self) -> None:
         """
         Testa se a verificação de sequência é case insensitive,
         ou seja, não diferencia maiúsculas de minúsculas.
         """
         self.assertTrue(senha_sequencial('ABC'))
 
-    def test_senha_valida(self):
+    def test_senha_valida(self) -> None:
         """
         Testa uma senha completamente válida que atende
         a todos os critérios de segurança.
