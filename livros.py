@@ -1,14 +1,15 @@
-from flask import jsonify, request, Blueprint
+from flask import jsonify, request, Blueprint, Response
 from flask_jwt_extended import jwt_required
 from models import Livro, db
+from typing import Any
 
 # Blueprint responsável pelas rotas de livros
-livros_pb = Blueprint('livros', __name__)
+livros_pb: Blueprint = Blueprint('livros', __name__)
 
 
 @livros_pb.post('/add')
 @jwt_required()
-def criar_livro():
+def criar_livro() -> tuple[Response, int]:
     """
     Cria um novo livro no sistema.
 
@@ -24,7 +25,7 @@ def criar_livro():
         500: Erro interno no servidor
     """
     try:
-        dados = request.get_json()
+        dados: dict[str, Any] = request.get_json()
 
         # Validação de campos obrigatórios
         if not dados.get('titulo') or not dados.get('autor'):
@@ -35,7 +36,7 @@ def criar_livro():
             return jsonify({'Mensagem': 'Esse livro já foi cadastrado'}), 409
 
         # Criação do livro
-        novo_livro = Livro(titulo=dados['titulo'], autor=dados['autor'])
+        novo_livro: Livro = Livro(titulo=dados['titulo'], autor=dados['autor'])
         db.session.add(novo_livro)
         db.session.commit()
 
@@ -48,7 +49,7 @@ def criar_livro():
 
 
 @livros_pb.get('/list')
-def listar_livros():
+def listar_livros() -> tuple[Response, int]:
     """
     Lista todos os livros cadastrados.
 
@@ -56,7 +57,7 @@ def listar_livros():
         200: Lista de livros
         404: Nenhum livro encontrado
     """
-    livros = Livro.query.all()
+    livros: list[Livro] = Livro.query.all()
 
     if not livros:
         return jsonify({'Mensagem': 'Não há livros para exibir'}), 404
@@ -65,7 +66,7 @@ def listar_livros():
 
 
 @livros_pb.get('/buscar/<int:id>')
-def buscar_por_id(id):
+def buscar_por_id(id: int) -> tuple[Response, int]:
     """
     Busca um livro pelo ID.
 
@@ -76,7 +77,7 @@ def buscar_por_id(id):
         200: Livro encontrado
         404: Livro não encontrado
     """
-    busca = Livro.query.get(id)
+    busca: Livro | None = Livro.query.get(id)
 
     if busca is None:
         return jsonify({"erro": 'id não encontrado'}), 404
@@ -86,7 +87,7 @@ def buscar_por_id(id):
 
 @livros_pb.put('/atualizar/<int:id>')
 @jwt_required()
-def atualizar_livro(id):
+def atualizar_livro(id: int) -> tuple[Response, int]:
     """
     Atualiza os dados de um livro existente.
 
@@ -105,12 +106,12 @@ def atualizar_livro(id):
         500: Erro interno no servidor
     """
     try:
-        atualizar = Livro.query.get(id)
+        atualizar: Livro | None = Livro.query.get(id)
 
         if atualizar is None:
             return jsonify({'Mensagem': 'id não encontrado'}), 404
 
-        dados = request.get_json()
+        dados: dict[str, Any] = request.get_json()
 
         # Validação de campos obrigatórios
         if not dados.get('titulo') or not dados.get('autor'):
@@ -131,7 +132,7 @@ def atualizar_livro(id):
 
 @livros_pb.delete('/livros/<int:id>')
 @jwt_required()
-def remover_livro(id):
+def remover_livro(id: int) -> tuple[Response, int]:
     """
     Remove um livro pelo ID.
 
@@ -148,7 +149,7 @@ def remover_livro(id):
         500: Erro interno no servidor
     """
     try:
-        livros = Livro.query.get(id)
+        livros: Livro | None = Livro.query.get(id)
 
         if livros is None:
             return jsonify({"Erro": 'id não encontrado'}), 404

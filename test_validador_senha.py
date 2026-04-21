@@ -27,9 +27,9 @@ class TestValidadorSenha(unittest.TestCase):
         - letras maiúsculas
         - números
         """
-        msg = 'Senha fraca: deve conter letras minúsculas, maiúsculas e números.'
+        msg: str = 'Senha fraca: deve conter letras minúsculas, maiúsculas e números.'
 
-        senhas_invalidads = [
+        senhas_invalidads: list[tuple[str, str]] = [
            ('ASDQWEDFEF1235@', msg),   # sem minúsculas
            ('adfdfrergefveht1235', msg),  # sem maiúsculas
            ('aASDqwegtrwf!@', msg),   # sem números
@@ -42,8 +42,8 @@ class TestValidadorSenha(unittest.TestCase):
         """
         Testa senhas que não possuem caracteres especiais.
         """
-        msg = 'Senha fraca: inclua pelo menos um caractere especial.'
-        senhas_nao_sequencias = [
+        msg: str = 'Senha fraca: inclua pelo menos um caractere especial.'
+        senhas_nao_sequencias: list[tuple[str, str]] = [
             ('CauanPass1691', msg),
             ('EduCosta2591', msg),
             ('LeoSoares451', msg)
@@ -57,7 +57,7 @@ class TestValidadorSenha(unittest.TestCase):
         Testa se a função senha_sequencial identifica corretamente
         sequências simples dentro da senha.
         """
-        senhas_sequencias = [
+        senhas_sequencias: list[str] = [
            '123456789',
            'abcdefghi',
            'rootqwe123!@',
@@ -72,7 +72,7 @@ class TestValidadorSenha(unittest.TestCase):
         Testa senhas que NÃO possuem sequências simples,
         garantindo que a função retorne False.
         """
-        senhas_nao_sequencias = [
+        senhas_nao_sequencias: list[str] = [
            'CauanPass1691!@',
            'EduCosta$$2591',
            'LeoSoares451!'

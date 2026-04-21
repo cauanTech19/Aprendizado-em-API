@@ -1,10 +1,10 @@
-from app import create_app
+from app import create_app, Flask
 import os
 from models import db
 
 
 if __name__ == '__main__':
-    app = create_app()
+    app: Flask = create_app()
     
     with app.app_context():
         db.create_all()

@@ -1,8 +1,8 @@
-import string
 import re
+import string
+from typing import Union
 
-
-def senha_sequencial(senha):
+def senha_sequencial(senha:str) -> bool:
     """
     Verifica se a senha contém sequências simples de caracteres.
 
@@ -17,17 +17,17 @@ def senha_sequencial(senha):
     Retorno:
         bool: True se houver sequência simples, False caso contrário.
     """
-    valores_sequenciais = [
+    valores_sequenciais: list[str] = [
         "1234567890",
         "abcdefghijklmnopqrstuvwxyz",
         "qwertyuiop"
     ]
 
-    senha = senha.lower()
+    senhas: str = senha.lower()
 
     for valor in valores_sequenciais:
-        for i in range(len(senha) - 2):
-            parte = senha[i:i+3]
+        for i in range(len(senhas) - 2):
+            parte: str = senhas[i:i+3]
 
             if parte in valor:
                 return True
@@ -40,7 +40,7 @@ class ValidarSenha:
     """
 
     @staticmethod
-    def validar_senha(senha):
+    def validar_senha(senha:str) -> Union[str, None]:
         """
         Valida a senha com base em critérios de segurança.
 
@@ -60,10 +60,10 @@ class ValidarSenha:
                 - Retorna mensagem de erro se inválida
                 - Retorna None se válida
         """
-        minusculo = any(i.islower() for i in senha)
-        maiusculo = any(i.isupper() for i in senha)
-        numero = any(i.isdigit() for i in senha)
-        caracteres_especiais = any(c in string.punctuation for c in senha)
+        minusculo: bool = any(i.islower() for i in senha)
+        maiusculo: bool = any(i.isupper() for i in senha)
+        numero: bool = any(i.isdigit() for i in senha)
+        caracteres_especiais: bool = any(c in string.punctuation for c in senha)
 
         if len(senha) < 8:
             return 'Senha fraca: mínimo 8 caracteres.'
@@ -86,7 +86,7 @@ class ValidarEmail:
     """
 
     @staticmethod
-    def validar_email(email):
+    def validar_email(email:str) -> Union[str, None]:
         """
         Valida se o e-mail está em um formato válido usando regex.
 
@@ -111,7 +111,7 @@ class ValidarUsuario:
     """
 
     @staticmethod
-    def validar_dados_usuarios(email, senha):
+    def validar_dados_usuarios(email: str, senha: str) -> Union[str, None]:
         """
         Valida email e senha de um usuário.
 
@@ -128,11 +128,11 @@ class ValidarUsuario:
                 - Retorna erro encontrado (email ou senha)
                 - Retorna None se tudo estiver válido
         """
-        erro_email = ValidarEmail.validar_email(email)
+        erro_email: Union[str, None] = ValidarEmail.validar_email(email)
         if erro_email:
             return erro_email
 
-        erro_senha = ValidarSenha.validar_senha(senha)
+        erro_senha: Union[str, None] = ValidarSenha.validar_senha(senha)
         if erro_senha:
             return erro_senha
 

@@ -1,15 +1,15 @@
-from flask import jsonify, request, Blueprint
+from flask import jsonify, Blueprint, Response, request, Request
 from flask_jwt_extended import create_access_token
 from models import db, Usuario, bcrypt
 from models import Usuario, db
 from validador import ValidarUsuario
+from typing import Any
 
 # Blueprint responsável pelas rotas de autenticação (registro e login)
-auth_pb = Blueprint('auth_user', __name__)
-
+auth_pb: Blueprint = Blueprint('auth_user', __name__)
 
 @auth_pb.post('/registro')
-def registro():
+def registro() -> tuple[Response, int]:
     """
     Realiza o registro de um novo usuário.
 
@@ -35,9 +35,10 @@ def registro():
         500: Erro interno no servidor
     """
     try:
-        dados = request.get_json()
-        email = dados.get('email', '').strip().lower()
-        senha = dados.get('senha', '').strip()
+        req: Request = request
+        dados: dict[str, Any] = req.get_json()
+        email: str = dados.get('email', '').strip().lower()
+        senha: str = dados.get('senha', '').strip()
 
         # Validação de campos vazios
         if not email or not senha:
@@ -48,7 +49,7 @@ def registro():
             return jsonify({"Mensagem": "A senha não pode ser igual ao usuário"}), 400
 
         # Validação completa (email + senha)
-        erro = ValidarUsuario.validar_dados_usuarios(email, senha)
+        erro: str | None = ValidarUsuario.validar_dados_usuarios(email, senha)
         if erro:
             return jsonify({'Mensagem': erro}), 400
 
@@ -57,10 +58,10 @@ def registro():
             return jsonify({"Mensagem": 'Usuário já existe no sistema'}), 409
 
         # Criptografia da senha
-        senha_hash = bcrypt.generate_password_hash(senha).decode('utf-8')
+        senha_hash: str = bcrypt.generate_password_hash(senha).decode('utf-8')
 
         # Criação do usuário
-        novo_user = Usuario(email=email, senha=senha_hash)
+        novo_user: Usuario = Usuario(email=email, senha=senha_hash)
         db.session.add(novo_user)
         db.session.commit()
 
@@ -73,7 +74,7 @@ def registro():
 
 
 @auth_pb.post('/login')
-def login():
+def login() -> tuple[Response, int]:
     """
     Realiza autenticação do usuário e gera token JWT.
 
@@ -96,21 +97,31 @@ def login():
         500: Erro interno no servidor
     """
     try:
-        dados = request.get_json()
+        req: Request = request
+        dados: dict[str, Any] | None = req.get_json()
+
+        if dados is None:
+            return jsonify({'Mensagem':  'Requisição inválida'}), 400
+
 
         # Validação de campos vazios
         if not dados.get('email') or not dados.get('senha'):
             return jsonify({'Mensagem': 'Os campo(s) estão vazios'}), 400
+        
+
+        email_fornecido: str = str(dados.get('email', ""))
+        senha_fornecida: str = str(dados.get('senha', ""))
+
 
         # Busca usuário pelo email
-        email = Usuario.query.filter_by(email=dados['email']).first()
+        usuario: Any = Usuario.query.filter_by(email=email_fornecido).first()
 
         # Verifica se usuário existe e senha está correta
-        if email is None or not bcrypt.check_password_hash(email.senha, dados['senha']):
+        if usuario is None or not bcrypt.check_password_hash(usuario.senha, senha_fornecida):
             return jsonify({'Mensagem': 'Usuário ou senha estão incorretos'}), 401
 
         # Geração do token JWT
-        token = create_access_token(identity=str(email.id))
+        token: str = create_access_token(identity=str(usuario.id))
 
         return jsonify({'token': token}), 200
 

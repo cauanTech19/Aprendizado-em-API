@@ -2,10 +2,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 
 # Instância do ORM para manipulação do banco de dados
-db = SQLAlchemy()
+db: SQLAlchemy = SQLAlchemy()
 
 # Instância para criptografia de senhas
-bcrypt = Bcrypt()  
+bcrypt: Bcrypt = Bcrypt()  
 
 
 class Livro(db.Model):
@@ -17,11 +17,11 @@ class Livro(db.Model):
         titulo (str): Título do livro (obrigatório)
         autor (str): Nome do autor (obrigatório)
     """
-    id = db.Column(db.Integer, primary_key=True)
-    titulo = db.Column(db.String(100), nullable=False)
-    autor = db.Column(db.String(100), nullable=False)
+    id: int = db.Column(db.Integer, primary_key=True)
+    titulo: str = db.Column(db.String(100), nullable=False)
+    autor: str = db.Column(db.String(100), nullable=False)
 
-    def __init__(self, titulo, autor):
+    def __init__(self, titulo: str, autor: str) -> None:
         """
         Inicializa um novo objeto Livro.
 
@@ -29,10 +29,10 @@ class Livro(db.Model):
             titulo (str): Título do livro
             autor (str): Nome do autor
         """
-        self.titulo = titulo
-        self.autor = autor
+        self.titulo: str = titulo
+        self.autor: str = autor
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, int | str]:
         """
         Converte o objeto Livro em um dicionário.
 
@@ -51,11 +51,11 @@ class Usuario(db.Model):
         email (str): Email do usuário (obrigatório)
         senha (str): Senha criptografada do usuário (obrigatório)
     """
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), nullable=False)
-    senha = db.Column(db.String(100), nullable=False)
+    id: int = db.Column(db.Integer, primary_key=True)
+    email: str = db.Column(db.String(100), nullable=False)
+    senha: str = db.Column(db.String(100), nullable=False)
 
-    def __init__(self, email, senha):
+    def __init__(self, email: str, senha: str) -> None:
         """
         Inicializa um novo objeto Usuario.
 
@@ -63,10 +63,10 @@ class Usuario(db.Model):
             email (str): Email do usuário
             senha (str): Senha do usuário (já deve estar criptografada)
         """
-        self.email = email
-        self.senha = senha
+        self.email: str = email
+        self.senha: str = senha
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, int | str]:
         """
         Converte o objeto Usuario em um dicionário.
 

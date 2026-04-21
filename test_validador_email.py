@@ -1,7 +1,6 @@
 import unittest
 from validador import ValidarEmail
 
-
 class TestValidadorEmail(unittest.TestCase):
     """
     Classe de testes unitários para validação de e-mails.
@@ -10,7 +9,7 @@ class TestValidadorEmail(unittest.TestCase):
     esteja funcionando corretamente para diferentes cenários.
     """
 
-    def test_casos_emails_invalidos(self):
+    def test_casos_emails_invalidos(self) -> None:
         """
         Testa diferentes formatos de e-mails inválidos.
 
@@ -19,9 +18,10 @@ class TestValidadorEmail(unittest.TestCase):
         - Domínio mal formatado
         - TLD (extensão) com tamanho inválido
         """
-        msg = 'Email inválido'
+        
+        msg: str = 'Email inválido'
 
-        valores_invalidos = [
+        valores_invalidos: list[tuple[str, str]] = [
            ('@email.com', msg),
            ('user@.com', msg),
            ('user@email.c', msg),
@@ -30,7 +30,7 @@ class TestValidadorEmail(unittest.TestCase):
         for email, esperado in valores_invalidos:
             self.assertEqual(ValidarEmail.validar_email(email), esperado)
 
-    def test_casos_emails_validos(self):
+    def test_casos_emails_validos(self) -> None:
         """
         Testa e-mails válidos com diferentes variações.
 
@@ -39,7 +39,7 @@ class TestValidadorEmail(unittest.TestCase):
         - E-mail com subdomínio
         - E-mail com caractere especial (+)
         """
-        valores_validos = [
+        valores_validos: list[str] = [
             'user@gmail.com',
             'teste.email@empresa.com.br',
             'user+1@email.com'        

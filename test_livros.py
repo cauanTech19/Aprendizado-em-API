@@ -1,5 +1,9 @@
 import unittest
-from app import create_app, db
+from app import create_app, db, Flask
+from typing import Any
+from flask.testing import FlaskClient
+from flask.ctx import AppContext
+from werkzeug.test import TestResponse
 
 
 class TestLivros(unittest.TestCase):
@@ -25,10 +29,10 @@ class TestLivros(unittest.TestCase):
         - Cria as tabelas no banco de dados
         """
 
-        self.app = create_app(test_config=True)
-        self.client = self.app.test_client()
+        self.app: Flask = create_app(test_config=True)
+        self.client: FlaskClient = self.app.test_client()
 
-        self.ctx = self.app.app_context()
+        self.ctx: AppContext = self.app.app_context()
         self.ctx.push()
         db.create_all()
 
@@ -44,7 +48,7 @@ class TestLivros(unittest.TestCase):
         db.drop_all()
         self.ctx.pop()
 
-    def registrar(self):
+    def registrar(self) -> TestResponse:
         """
         Registra um usuário padrão para testes.
 
@@ -56,7 +60,7 @@ class TestLivros(unittest.TestCase):
             "senha": "Teste@12"
         })
 
-    def login(self):
+    def login(self) -> TestResponse:
         """
         Realiza login com o usuário padrão.
 
@@ -68,7 +72,7 @@ class TestLivros(unittest.TestCase):
             "senha": "Teste@12"
         })
 
-    def autenticar(self):
+    def autenticar(self) -> TestResponse:
         """
         Realiza o fluxo completo de autenticação.
 
@@ -80,11 +84,12 @@ class TestLivros(unittest.TestCase):
         Retorno:
             str: token de autenticação
         """
+
         self.registrar()
         response = self.login()
         return response.get_json().get("token")
 
-    def headers(self, token):
+    def headers(self, token: str) -> dict[str, str]:
         """
         Monta os headers de autenticação.
 
@@ -94,11 +99,12 @@ class TestLivros(unittest.TestCase):
         Retorno:
             dict: headers HTTP com Authorization
         """
+
         return {
             "Authorization": f"Bearer {token}"
         }
 
-    def criar_livro(self, token, titulo="Livro Teste", autor="Autor Teste"):
+    def criar_livro(self, token: str, titulo: str= "Livro Teste", autor: str ="Autor Teste") -> TestResponse:
         """
         Cria um livro autenticado.
 
@@ -120,7 +126,7 @@ class TestLivros(unittest.TestCase):
     # CREATE
     # =========================
 
-    def test_adicionando_livro_com_sucesso(self):
+    def test_adicionando_livro_com_sucesso(self) -> None:
         """
         Testa criação de livro com dados válidos.
 
@@ -128,165 +134,144 @@ class TestLivros(unittest.TestCase):
         - Status code 201 (Created)
         """
 
+        token: Any = self.autenticar()
+        response: TestResponse = self.criar_livro(token)
 
-        token = self.autenticar()
-
-        response = self.criar_livro(token)
-
-        print(response.get_json())
         self.assertEqual(response.status_code, 201)
 
-    def test_titulo_vazio(self):
+    def test_titulo_vazio(self) -> None:
         """
         Testa criação com título vazio.
 
         Esperado:
         - Status code 400 (Bad Request)
         """
-        token = self.autenticar()
+        token: Any = self.autenticar()
+        response: TestResponse = self.criar_livro(token, titulo="", autor="Autor Teste")
 
-        response = self.criar_livro(token, titulo="", autor="Autor Teste")
-
-        print(response.get_json())
         self.assertEqual(response.status_code, 400)
 
-    def test_autor_vazio(self):
+    def test_autor_vazio(self) -> None:
         """
         Testa criação com autor vazio.
 
         Esperado:
         - Status code 400 (Bad Request)
         """
-        token = self.autenticar()
+        token: Any = self.autenticar()
+        response: TestResponse = self.criar_livro(token, titulo="Livro Teste", autor="")
 
-        response = self.criar_livro(token, titulo="Livro Teste", autor="")
-
-        print(response.get_json())
         self.assertEqual(response.status_code, 400)
 
-    def test_titulo_duplicados(self):
+    def test_titulo_duplicados(self) -> None:
         """
         Testa criação de livros com título duplicado.
 
         Esperado:
         - Status code 409 (Conflict)
         """
-        token = self.autenticar()
-
+        token: Any = self.autenticar()
         self.criar_livro(token)
-        response = self.criar_livro(token)
+        response: TestResponse = self.criar_livro(token)
 
-        print(response.get_json())
         self.assertEqual(response.status_code, 409)
 
     # =========================
     # READ
     # =========================
 
-    def test_sem_livros_para_exibir(self):
+    def test_sem_livros_para_exibir(self) -> None:
         """
         Testa listagem sem livros cadastrados.
 
         Esperado:
         - Status code 404 (Not Found)
         """
-        response = self.client.get('/list')
-
-        print(response.get_json())
+        response: TestResponse = self.client.get('/list')
         self.assertEqual(response.status_code, 404)
 
-    def test_exibindo_livros_com_sucesso(self):
+    def test_exibindo_livros_com_sucesso(self) -> None:
         """
         Testa listagem com livros cadastrados.
 
         Esperado:
         - Status code 200 (OK)
         """
-        token = self.autenticar()
-
+        token: Any = self.autenticar()
         self.criar_livro(token)
-        response = self.client.get('/list')
 
-        print(response.get_json())
+        response: TestResponse = self.client.get('/list')
         self.assertEqual(response.status_code, 200)
 
-    def test_buscar_id_com_sucesso(self):
+    def test_buscar_id_com_sucesso(self) -> None:
         """
         Testa busca de livro por ID existente.
 
         Esperado:
         - Status code 200 (OK)
         """
-        token = self.autenticar()
-
+        token: Any = self.autenticar()
         self.criar_livro(token)
-        response = self.client.get('/buscar/1')
 
-        print(response.get_json())
+        response: TestResponse = self.client.get('/buscar/1')
         self.assertEqual(response.status_code, 200)
 
-    def test_buscando_id_nao_existe(self):
+    def test_buscando_id_nao_existe(self) -> None:
         """
         Testa busca por ID inexistente.
 
         Esperado:
         - Status code 404 (Not Found)
         """
-        response = self.client.get('/buscar/10')
-
+        response: TestResponse = self.client.get('/buscar/10')
         self.assertEqual(response.status_code, 404)
 
-    def test_buscando_id_com_sucesso(self):
+    def test_buscando_id_com_sucesso(self) -> None:
         """
         Testa listagem geral após inserção de livro.
 
         Esperado:
         - Status code 200 (OK)
         """
-        token = self.autenticar()
-
+        token: Any = self.autenticar()
         self.criar_livro(token)
-        response = self.client.get('/list')
-
-        print(response.get_json())
+        response: TestResponse = self.client.get('/list')
+        
         self.assertEqual(response.status_code, 200)
 
     # =========================
     # UPDATE
     # =========================
 
-    def test_atualizando_id_com_sucesso(self):
+    def test_atualizando_id_com_sucesso(self) -> None:
         """
         Testa atualização de livro com ID válido.
 
         Esperado:
         - Status code 200 (OK)
         """
-        token = self.autenticar()
-
+        token: Any = self.autenticar()
         self.criar_livro(token)
 
-        response = self.client.put(
+        response: TestResponse = self.client.put(
             '/atualizar/1',
             json={"titulo": "Livro Novo", "autor": "Autor Novo"},
             headers=self.headers(token)
         )
 
-        print(response.get_json())
         self.assertEqual(response.status_code, 200)
 
-    def test_id_nao_encontrado_para_atualizacao(self):
+    def test_id_nao_encontrado_para_atualizacao(self) -> None:
         """
         Testa atualização de livro com ID inexistente.
 
         Esperado:
         - Status code 404 (Not Found)
         """
-        token = self.autenticar()
-
+        token: Any = self.autenticar()
         self.criar_livro(token)
 
-        response = self.client.put(
+        response: TestResponse = self.client.put(
             '/atualizar/2',
             json={"titulo": "Livro Novo", "autor": "Autor Novo"},
             headers=self.headers(token)
@@ -294,7 +279,7 @@ class TestLivros(unittest.TestCase):
 
         self.assertEqual(response.status_code, 404)
 
-    def test_titulo_vazio_para_atualizacao(self):
+    def test_titulo_vazio_para_atualizacao(self) -> None:
         """
         Testa atualização com título vazio.
 
@@ -302,11 +287,10 @@ class TestLivros(unittest.TestCase):
         - Status code 400 (Bad Request)
         """
 
-        token = self.autenticar()
-
+        token: Any = self.autenticar()
         self.criar_livro(token)
 
-        response = self.client.put(
+        response: TestResponse = self.client.put(
             '/atualizar/1',
             json={"titulo": "", "autor": "Autor Novo"},
             headers=self.headers(token)
@@ -314,18 +298,17 @@ class TestLivros(unittest.TestCase):
 
         self.assertEqual(response.status_code, 400)
 
-    def test_autor_vazio_para_atualizacao(self):
+    def test_autor_vazio_para_atualizacao(self) -> None:
         """
         Testa atualização com autor vazio.
 
         Esperado:
         - Status code 400 (Bad Request)
         """
-        token = self.autenticar()
-
+        token: Any = self.autenticar()
         self.criar_livro(token)
 
-        response = self.client.put(
+        response: TestResponse = self.client.put(
             '/atualizar/1',
             json={"titulo": "Titulo Novo", "autor": ""},
             headers=self.headers(token)
@@ -337,18 +320,18 @@ class TestLivros(unittest.TestCase):
     # DELETE
     # =========================
 
-    def test_id_nao_encontrado_para_remocao(self):
+    def test_id_nao_encontrado_para_remocao(self) -> None:
         """
         Testa remoção de livro com ID inexistente.
 
         Esperado:
         - Status code 404 (Not Found)
         """
-        token = self.autenticar()
 
+        token: Any = self.autenticar()
         self.criar_livro(token)
 
-        response = self.client.delete(
+        response: TestResponse = self.client.delete(
             '/livros/2',
             json={"titulo": "Titulo Novo", "autor": "Autor Novo"},
             headers=self.headers(token)
@@ -356,7 +339,7 @@ class TestLivros(unittest.TestCase):
 
         self.assertEqual(response.status_code, 404)
 
-    def test_removendo_livro_com_sucesso(self):
+    def test_removendo_livro_com_sucesso(self) -> None:
         """
         Testa remoção de livro com ID válido.
 
@@ -364,11 +347,10 @@ class TestLivros(unittest.TestCase):
         - Status code 200 (OK)
         """
         
-        token = self.autenticar()
-
+        token: Any = self.autenticar()
         self.criar_livro(token)
 
-        response = self.client.delete(
+        response: TestResponse = self.client.delete(
             '/livros/1',
             json={"titulo": "Titulo Novo", "autor": "Autor Novo"},
             headers=self.headers(token)
