@@ -109,8 +109,4 @@ def create_app(test_config: bool = False) -> Flask:
     return app
 
 
-# -----------------------------------------------------------------------------
-# Instância global da aplicação para uso em produção.
-# O servidor WSGI (Gunicorn, uWSGI) importa este objeto para servir a API.
-# -----------------------------------------------------------------------------
 app = create_app()
